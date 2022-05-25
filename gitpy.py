@@ -43,11 +43,12 @@ def repoInit(target):
 
 def repoCommit(_git):
 	print("Você está realizando um commit no branch:");
-	print(colorama.Fore.GREEN + _git.branch('--show-current') + colorama.Fore.RESET);
+	branch = _git.branch('--show-current');
+	print(colorama.Fore.GREEN + branch + colorama.Fore.RESET);
 	_continue = queryYN('Deseja prosseguir?');
 
 	if ( _continue == False ):
-		success('Commit abortado com sucesso');
+		success('Commit abortado com sucesso...');
 
 	commit_types = {
 		1: { 'emoji': ':sparkles:', 'type': 'feat', 'txt': "Features" },
@@ -88,7 +89,7 @@ def repoCommit(_git):
 			type = 0;
 
 	if ( type == 21 ): 
-		success('Commit abortado com sucesso');
+		success('Commit abortado com sucesso...');
 	
 	type = commit_types[type];
 
@@ -105,10 +106,16 @@ def repoCommit(_git):
 	_continue = queryYN('Deseja prosseguir?');
 
 	if ( _continue == False ):
-		success('Commit abortado com sucesso');
+		success('Commit abortado com sucesso...');
 
 	_git.add('--all');
 	_git.commit('-m', message);
+
+	_continue = queryYN('Deseja sincronizar?');
+
+	if ( _continue != False ):
+		_git.push('origin', branch);
+		success('Commit finalizado e sincronizado com sucesso...');
 
 	success('Commit finalizado com sucesso...');
 
