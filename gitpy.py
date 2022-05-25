@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-import getopt;
+#!/usr/bin/env python
+import colorama;
 import git;
 import os;
 import pathlib;
@@ -7,19 +7,27 @@ import sys;
 
 def status (target):
 	try:
-		return git.Repo(target);
+		return git.Repo(target).git;
 	except git.InvalidGitRepositoryError:
 		return False;
 
+def devBranch (repo: git.Git):
+	repo.checkout('-b', 'dev');
+
 def repoInit(target): 
-	project_name = queryInput('Qual o nome do projeto?');
-	has_origin = queryYN('Tem uma origem remota?');
+	sts = status(target);
+
+	if ( sts != False ):
+		err('Comando Inválido', 'O repositório já foi iniciado na pasta atual...');
+
+	project_name = queryInput('Qual o nome do projeto? > ');
+	has_origin = queryYN('Tem uma origem remota? > ');
 
 	if (has_origin):
-		repo_origin = queryInput('Qual a URL de origem do projeto?');
+		repo_origin = queryInput('Qual a URL de origem do projeto? > ');
 
-	# if ( pathlib.Path(pathlib.PurePath(target, 'README.md')).is_file() != True ) :
-	# 	os.system('echo "# {name}" >> README.md'.format(name = project_name));
+	if ( pathlib.Path(pathlib.PurePath(target, 'README.md')).is_file() != True ) :
+		os.system('echo "# {name}" >> README.md'.format(name = project_name));
 	
 	repo = git.Repo.init(target).git;
 	repo.add('--all');
@@ -30,49 +38,117 @@ def repoInit(target):
 		repo.remote('add', 'origin', repo_origin);
 		repo.push('-u', 'origin', 'main');
 
-	print("Repositório iniciado com sucesso...")
+	sys.stdout.write("\n\nRepositório iniciado com sucesso...")
+
+def repoCommit(_git):
+	print("Você está realizando um commit no branch:");
+	print(colorama.Fore.GREEN + _git.branch('--show-current') + colorama.Fore.RESET);
+	_continue = queryYN('Deseja prosseguir?');
+
+	if ( _continue == False ):
+		success();
+
+	commit_types = {
+		1: { 'emoji': ':sparkles:', 'type': 'feat', 'txt': "Features" },
+		2: { 'emoji': ':bug:', 'type': 'fix', 'txt': "Bug Fixes" },
+		3: { 'emoji': ':books:', 'type': 'docs', 'txt': "Documentation" },
+		4: { 'emoji': ':gem:', 'type': 'style', 'txt': "Styles" },
+		5: { 'emoji': ':package:', 'type': 'refactor', 'txt': "Code Refactoring" },
+		6: { 'emoji': ':racehorse:', 'type': 'perf', 'txt': "Performance Improvements" },
+		7: { 'emoji': ':rotating_light:', 'type': 'test', 'txt': "Tests" },
+		8: { 'emoji': ':wrench:', 'type': 'build', 'txt': "Builds" },
+		9: { 'emoji': ':gear:', 'type': 'ci', 'txt': "'Continuous Integrations" },
+		10: { 'emoji': ':recycle:', 'type': 'chore', 'txt': "Chores" },
+		11: { 'emoji': ':rewind:', 'type': 'revert', 'txt': "Reverts" },
+		12: { 'emoji': ':arrow_double_up:', 'type': 'dependencies', 'txt': "Dependencies" },
+		13: { 'emoji': ':arrow_double_up:', 'type': 'peerDependencies', 'txt': "Peer dependencies" },
+		14: { 'emoji': ':arrow_double_up:', 'type': 'devDependencies', 'txt': "Dev dependencies" },
+		15: { 'emoji': ':card_index:', 'type': 'metadata', 'txt': "Metadata" },
+		16: { 'emoji': ':bookmark:', 'type': 'version', 'txt': "Version tag" },
+		17: { 'emoji': ':lock:', 'type': 'security', 'txt': "Security" },
+		18: { 'emoji': ':pencil:', 'type': 'text', 'txt': "Text" },
+		19: { 'emoji': ':ambulance:', 'type': 'critical', 'txt': "Critical changes" },
+		20: { 'emoji': ':ok_hand:', 'type': 'review', 'txt': "Code review" },
+	};
+
+	type = 0;
+
+	while (type <= 0):
+		for key in commit_types.keys():
+			print(key, '\t', commit_types[key]['txt']);
+
+		print('Defina o tipo de commit' + colorama.Fore.GREEN + '> ' + colorama.Fore.RESET);
+
+		try:
+			type = int(input());
+		except:
+			type = 0;
+			print("\n\n");
+
+	type = commit_types[type];
+
+	scope = queryInput('Dê um escopo para o seu commit [<=15]', 15);
+	title = queryInput('Dê um título para o seu commit [<=50]', 50);
+	body = queryInput('Descreva brevemente o seu commit [<=75]', 75);
+
+	message = "{em} {tp}({sc}): {tt}\n\n{b}".format(em=type['emoji'],tp=type['type'],sc=scope,tt=title,b=body);
+
+	_git.add('--all');
+	_git.commit('-m', message);
+
+	sys.stdout.write("\n\nCommit finalizado com sucesso.");
+	sys.exit();
 
 def main () : 
-	repo_base = None;
 	command = None;
 
 	argv = sys.argv[1:];
 
-	try:
-		opts, args = getopt.getopt(argv, "c:p:", ["command=", "path="]);
-	except getopt.GetoptError:
-		print('Não é possível validar os parâmetros do comando...');
-		sys.exit(2);
+	if (len(argv) == 0):
+		err('Argumento Inválido', 'Defina um comando antes de continuar...');
 
-	for opt, arg in opts:
-		if ( opt in ( '-c', '--command' ) ):
-			command = arg;
-		elif ( opt in ( '-p', '--path' ) ):
-			repo_base = arg;
+	command = argv[0];
+	switcher = {
+		'dev': lambda _git: devBranch(_git),
+		'commit': lambda _git: repoCommit(_git),
+	}
 
-	if command is None:
-		command = 'init';
+	if ( command == 'init' ):
+		repoInit('.');
+		success();
 
-	if repo_base is None:
-		repo_base = '.';
+	func = switcher.get(command, False);
 
-	repo_base = str(pathlib.Path(repo_base).resolve());
+	if ( func == False ):
+		err('Comando Inválido', "O comando {command} não foi encontrado.".format(command=command));
 
-	if ( status(repo_base) == False ):
-		repoInit(repo_base);
+	_git = status('.');
 
-def queryInput (question: str):
+	if (_git == False):
+		err('Comando Inválido', "O repositório ainda não foi iniciado, execute o comando init antes de continuar.");
+
+	func(_git);
+	success();
+
+def queryInput (question: str, max: int = -1):
 	while True:
-		sys.stdout.write(question);
+		print(question + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET);
 		response = input();
 
-		if len(response) != 0:
+		if ( max < 0 ):
+			max = len(response);
+
+		if (len(response) != 0 and len(response) <= max):
 			return response;
 		else:
-			sys.stdout.write("Por favor, insira uma resposta válida.\n")
+			printErr('Valor inesperado', "É necessário preencher uma resposta...\n");
+			sys.stdout.write("Por favor, insira uma resposta válida.\n");
+
+			if (max >= 0):
+				printErr('Valor inesperado', "Limite máximo de {m} caracter(es) atingido...\n\n".format(m=max));
 
 def queryYN (question: str, default: str = 'yes'):
-	valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False};
+	valid = {"yes": True, "y": True, "no": False, "n": False};
 
 	if default is None:
 		prompt = " [y/n] ";
@@ -81,18 +157,36 @@ def queryYN (question: str, default: str = 'yes'):
 	elif default == "no":
 		prompt = " [y/N] ";
 	else:
-		raise ValueError("Invalid default answer: '%s'" % default);
+		default = 'yes';
+		prompt = " [Y/n] ";
 
 	while True:
-		sys.stdout.write(question + prompt);
-		choice = input().lower();
+		choice = input(question + prompt + colorama.Fore.GREEN + '> ' + colorama.Fore.RESET).lower();
 
 		if default is not None and choice == "":
 			return valid[default];
 		elif choice in valid:
 			return valid[choice];
 		else:
-			sys.stdout.write("Por favor, responda com: y; n; yes; no.\n")
+			printErr('Valor inesperado', "Por favor, responda com: `y`, `n`, `yes` ou `no`.\n");
+
+def printErr (err = 'Erro', message = 'Algo deu errado'):
+	print(
+		colorama.Back.RED 
+		+ err + ' >' 
+		+ colorama.Back.RESET 
+		+ colorama.Fore.RED 
+		+ ' ' + message
+		+ colorama.Fore.RESET
+	);
+
+def err (err = 'Erro', message = 'Algo deu errado'):
+	printErr(err, message);
+	sys.exit(2);
+
+def success (message = 'Não há mais nada a ser feito...'):
+	print("\n\n" + colorama.Fore.GREEN + message + colorama.Fore.RESET);
+	sys.exit();
 
 if __name__ == "__main__":
 	main()
