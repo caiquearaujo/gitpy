@@ -21,11 +21,11 @@ def repoInit(target):
 	if ( sts != False ):
 		err('Comando Inválido', 'O repositório já foi iniciado na pasta atual...');
 
-	project_name = queryInput('Qual o nome do projeto? > ');
-	has_origin = queryYN('Tem uma origem remota? > ');
+	project_name = queryInput('[*] Qual o nome do projeto?');
+	has_origin = queryYN('[*] Tem uma origem remota?');
 
 	if (has_origin):
-		repo_origin = queryInput('Qual a URL de origem do projeto? > ');
+		repo_origin = queryInput('[*] Qual a URL de origem do projeto?');
 
 	if ( pathlib.Path(pathlib.PurePath(target, 'README.md')).is_file() != True ) :
 		os.system('echo "# {name}" >> README.md'.format(name = project_name));
@@ -39,7 +39,8 @@ def repoInit(target):
 		repo.remote('add', 'origin', repo_origin);
 		repo.push('-u', 'origin', 'main');
 
-	sys.stdout.write("\n\nRepositório iniciado com sucesso...")
+	devBranch();
+	success('Repositório iniciado com sucesso...');
 
 def repoCommit(_git):
 	print("Você está realizando um commit no branch:");
@@ -84,7 +85,7 @@ def repoCommit(_git):
 
 		try:
 			print();
-			type = int(input('Defina o tipo de commit' + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET));
+			type = int(input('[*] Defina o tipo de commit' + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET));
 		except:
 			type = 0;
 
@@ -94,8 +95,8 @@ def repoCommit(_git):
 	type = commit_types[type];
 
 	print();
-	scope = queryInput('Dê um escopo para o seu commit [<=15]', 15);
-	title = queryInput('Dê um título para o seu commit [<=50]', 50);
+	scope = queryInput('[*] Dê um escopo para o seu commit [<=15]', 15);
+	title = queryInput('[*] Dê um título para o seu commit [<=50]', 50);
 	body = queryInput('Descreva brevemente o seu commit [<=75]', 75);
 
 	message = "{em} {tp}({sc}): {tt}\n\n{b}".format(em=type['emoji'],tp=type['type'],sc=scope,tt=title,b=body);
@@ -150,7 +151,7 @@ def main () :
 	func(_git);
 	success();
 
-def queryInput (question: str, max: int = -1):
+def queryInput (question: str, max: int = -1, required = True):
 	while True:
 		print(question + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET);
 		response = input();
@@ -161,6 +162,9 @@ def queryInput (question: str, max: int = -1):
 		if (len(response) != 0 and len(response) <= max):
 			return response;
 		else:
+			if (required == False):
+				return '';
+
 			printErr('Valor inesperado', 'É necessário preencher uma resposta...');
 
 			if (max >= 0):
