@@ -47,7 +47,7 @@ def repoCommit(_git):
 	_continue = queryYN('Deseja prosseguir?');
 
 	if ( _continue == False ):
-		success();
+		success('Commit abortado com sucesso');
 
 	commit_types = {
 		1: { 'emoji': ':sparkles:', 'type': 'feat', 'txt': "Features" },
@@ -98,6 +98,14 @@ def repoCommit(_git):
 	body = queryInput('Descreva brevemente o seu commit [<=75]', 75);
 
 	message = "{em} {tp}({sc}): {tt}\n\n{b}".format(em=type['emoji'],tp=type['type'],sc=scope,tt=title,b=body);
+
+	print(colorama.Fore.GREEN + 'Pré-visualização do seu commit:\n' + colorama.Fore.RESET);
+	print(message+"\n");
+
+	_continue = queryYN('Deseja prosseguir?');
+
+	if ( _continue == False ):
+		success('Commit abortado com sucesso');
 
 	_git.add('--all');
 	_git.commit('-m', message);
