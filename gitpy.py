@@ -13,6 +13,7 @@ def status (target):
 
 def devBranch (repo: git.Git):
 	repo.checkout('-b', 'dev');
+	repo.push('-u', 'origin', 'dev');
 
 def repoInit(target): 
 	sts = status(target);
@@ -57,7 +58,7 @@ def repoCommit(_git):
 		6: { 'emoji': ':racehorse:', 'type': 'perf', 'txt': "Performance Improvements" },
 		7: { 'emoji': ':rotating_light:', 'type': 'test', 'txt': "Tests" },
 		8: { 'emoji': ':wrench:', 'type': 'build', 'txt': "Builds" },
-		9: { 'emoji': ':gear:', 'type': 'ci', 'txt': "'Continuous Integrations" },
+		9: { 'emoji': ':gear:', 'type': 'ci', 'txt': "Continuous Integrations" },
 		10: { 'emoji': ':recycle:', 'type': 'chore', 'txt': "Chores" },
 		11: { 'emoji': ':rewind:', 'type': 'revert', 'txt': "Reverts" },
 		12: { 'emoji': ':arrow_double_up:', 'type': 'dependencies', 'txt': "Dependencies" },
@@ -69,24 +70,29 @@ def repoCommit(_git):
 		18: { 'emoji': ':pencil:', 'type': 'text', 'txt': "Text" },
 		19: { 'emoji': ':ambulance:', 'type': 'critical', 'txt': "Critical changes" },
 		20: { 'emoji': ':ok_hand:', 'type': 'review', 'txt': "Code review" },
+		21: { 'emoji': '', 'type': 'abort', 'txt': "Abortar commit" },
 	};
 
 	type = 0;
+
+	print();
 
 	while (type <= 0):
 		for key in commit_types.keys():
 			print(key, '\t', commit_types[key]['txt']);
 
-		print('Defina o tipo de commit' + colorama.Fore.GREEN + '> ' + colorama.Fore.RESET);
-
 		try:
-			type = int(input());
+			print();
+			type = int(input('Defina o tipo de commit' + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET));
 		except:
 			type = 0;
-			print("\n\n");
 
+	if ( type == 21 ): 
+		success('Commit abortado com sucesso');
+	
 	type = commit_types[type];
 
+	print();
 	scope = queryInput('Dê um escopo para o seu commit [<=15]', 15);
 	title = queryInput('Dê um título para o seu commit [<=50]', 50);
 	body = queryInput('Descreva brevemente o seu commit [<=75]', 75);
@@ -96,8 +102,7 @@ def repoCommit(_git):
 	_git.add('--all');
 	_git.commit('-m', message);
 
-	sys.stdout.write("\n\nCommit finalizado com sucesso.");
-	sys.exit();
+	success('Commit finalizado com sucesso...');
 
 def main () : 
 	command = None;
@@ -120,12 +125,12 @@ def main () :
 	func = switcher.get(command, False);
 
 	if ( func == False ):
-		err('Comando Inválido', "O comando {command} não foi encontrado.".format(command=command));
+		err('Comando Inválido', 'O comando {command} não foi encontrado.'.format(command=command));
 
 	_git = status('.');
 
 	if (_git == False):
-		err('Comando Inválido', "O repositório ainda não foi iniciado, execute o comando init antes de continuar.");
+		err('Comando Inválido', 'O repositório ainda não foi iniciado, execute o comando init antes de continuar.');
 
 	func(_git);
 	success();
@@ -141,11 +146,10 @@ def queryInput (question: str, max: int = -1):
 		if (len(response) != 0 and len(response) <= max):
 			return response;
 		else:
-			printErr('Valor inesperado', "É necessário preencher uma resposta...\n");
-			sys.stdout.write("Por favor, insira uma resposta válida.\n");
+			printErr('Valor inesperado', 'É necessário preencher uma resposta...');
 
 			if (max >= 0):
-				printErr('Valor inesperado', "Limite máximo de {m} caracter(es) atingido...\n\n".format(m=max));
+				printErr('Valor inesperado', 'Limite máximo de {m} caracter(es) atingido...\n'.format(m=max));
 
 def queryYN (question: str, default: str = 'yes'):
 	valid = {"yes": True, "y": True, "no": False, "n": False};
@@ -168,7 +172,7 @@ def queryYN (question: str, default: str = 'yes'):
 		elif choice in valid:
 			return valid[choice];
 		else:
-			printErr('Valor inesperado', "Por favor, responda com: `y`, `n`, `yes` ou `no`.\n");
+			printErr('Valor inesperado', 'Por favor, responda com: `y`, `n`, `yes` ou `no`.');
 
 def printErr (err = 'Erro', message = 'Algo deu errado'):
 	print(
