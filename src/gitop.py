@@ -55,7 +55,7 @@ class GitOp:
 
 		self.__commit(message);
 
-		_continue = Terminal.askInput('Deseja exportar o commit para branches remotos [push]?');
+		_continue = Terminal.askYN('Deseja exportar o commit para branches remotos [push]?');
 
 		if ( _continue != False ):
 			self.__pushTo(branch);
