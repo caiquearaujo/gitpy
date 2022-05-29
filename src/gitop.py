@@ -9,7 +9,7 @@ class GitOp:
 		self.git = GitOp.status('.');
 
 	def init(self):
-		if (self.exists() == False):
+		if (self.exists() != False):
 			Terminal.err('Comando Inválido', 'O repositório já foi iniciado na pasta atual...');
 
 		pname = slugify(Terminal.askInput('[*] Qual o nome do projeto?', 25));
@@ -21,11 +21,11 @@ class GitOp:
 		self.__commit(':tada: initial(repo): First commit');
 		self.__renameTo('main');
 
-		add_origin = Terminal.askInput('[*] Adicionar origem remota?');
+		add_origin = Terminal.askYN('[*] Adicionar origem remota?');
 		origin_name = None;
 		origin_url = None;
 
-		if (add_origin):
+		if (add_origin == True):
 			origin_name = Terminal.askInput('[*] Informe o nome da origem:', default = 'origin');
 			origin_url = Terminal.askInput('[*] Qual a URL de origem do projeto?');
 
@@ -71,7 +71,8 @@ class GitOp:
 
 	def __create(self, branch: str, origin: str = 'origin', track: bool = True):
 		if ( track ):
-			self.git.checkout('-b', branch, '--track', origin+'/'+branch);
+			self.git.checkout('-b', branch);
+			self.git.push('-u', origin, branch);
 		else:
 			self.git.checkout('-b', branch);
 
