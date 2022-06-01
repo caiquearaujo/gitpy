@@ -61,19 +61,22 @@ class Terminal:
 			if ( max < 0 ):
 				max = len(response);
 
-			if (len(response) != 0 and len(response) <= max):
-				return response;
+			if ( required ) :
+				if ( len(response) == 0 and default != None ):
+					return default;
+
+				if ( len(response) != 0 and len(response) <= max ):
+					return response;
+
+				Terminal.printErr('Valor inesperado', 'É necessário preencher uma resposta...');
+
+				if (len(response) > max):
+					Terminal.printErr('Valor inesperado', 'Limite máximo de {m} caracter(es) atingido...\n'.format(m=max));
 			else:
 				if ( default != None ):
 					return default;
 
-				if (required == False):
-					return '';
-
-				Terminal.printErr('Valor inesperado', 'É necessário preencher uma resposta...');
-
-				if (max >= 0):
-					Terminal.printErr('Valor inesperado', 'Limite máximo de {m} caracter(es) atingido...\n'.format(m=max));
+				return '';
 
 	@staticmethod
 	def askYN (question: str, default: str = 'yes'):
