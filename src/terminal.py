@@ -25,7 +25,8 @@ class Terminal:
 			18: { 'emoji': ':pencil:', 'type': 'text', 'txt': "Text" },
 			19: { 'emoji': ':ambulance:', 'type': 'critical', 'txt': "Critical changes" },
 			20: { 'emoji': ':ok_hand:', 'type': 'review', 'txt': "Code review" },
-			21: { 'emoji': '', 'type': 'abort', 'txt': "Abort commit" },
+			21: { 'emoji': ':recycle:', 'type': 'review', 'txt': "Content review" },
+			22: { 'emoji': '', 'type': 'abort', 'txt': "Abort commit" },
 		};
 
 		type = 0;
@@ -42,7 +43,7 @@ class Terminal:
 			except:
 				type = 0;
 
-		if ( type == 21 ):
+		if ( type == 22 ):
 			Terminal.success('Commit abortado com sucesso.');
 
 		return commit_types[type];
@@ -76,7 +77,7 @@ class Terminal:
 				if ( default != None ):
 					return default;
 
-				return '';
+				return response or "";
 
 	@staticmethod
 	def askYN (question: str, default: str = 'yes'):

@@ -44,7 +44,7 @@ class GitOp:
 
 		scope = Terminal.askInput('[*] Dê um escopo para o seu commit [<=15]', 15);
 		title = Terminal.askInput('[*] Dê um título para o seu commit [<=50]', 50);
-		body = Terminal.askInput('Descreva brevemente o seu commit [<=75]', 75, False, '');
+		body = Terminal.askInput('Descreva brevemente o seu commit [<=75]', 75, False);
 
 		message = "{em} {tp}({sc}): {tt}\n\n{b}".format(em=type['emoji'],tp=type['type'],sc=scope,tt=title,b=body);
 
