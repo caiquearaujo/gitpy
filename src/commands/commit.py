@@ -16,11 +16,10 @@ class CommitCommand:
 		terminal.Terminal.shouldContinue();
 
 		type = terminal.Terminal.commitTypes();
-		terminal.Terminal.spacing();
 
 		scope = slugify(terminal.Terminal.askInput('[*] Give a scope for your commit [<=20]', 20));
 		title = terminal.Terminal.askInput('[*] Give a title for your commit [<=75]', 75);
-		body = terminal.Terminal.askInput('Briefly describe your commit [<=180]', 180, False);
+		body = terminal.Terminal.askInput('Briefly describe your commit [<=180]', 180, False, jump=True);
 
 		message = "{em} {tp}({sc}): {tt}\n\n{b}".format(em=type['emoji'],tp=type['type'],sc=scope,tt=title,b=body);
 
@@ -31,7 +30,7 @@ class CommitCommand:
 		terminal.Terminal.shouldContinue();
 		self.git.commit(message);
 
-		_continue = Terminal.askYN('Do you want to push this commit to remote?');
+		_continue = terminal.Terminal.askYN('Do you want to push this commit to remote?');
 
 		if ( _continue != False ):
 			origin_name = None;

@@ -50,12 +50,15 @@ class Terminal:
 		return commit_types[type];
 
 	@staticmethod
-	def askInput (question: str, max: int = -1, required: bool = True, default: str = None):
+	def askInput (question: str, max: int = -1, required: bool = True, default: str = None, jump: bool = False):
 		while True:
-			message = question;
+			message = question + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET;
 
 			if ( default ):
-				message += colorama.Fore.YELLOW + ' [' + default + ']' + colorama.Fore.RESET  + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET;
+				message += colorama.Fore.YELLOW + ' [' + default + ']' + colorama.Fore.RESET;
+
+			if (jump):
+				message += "\n";
 
 			response = input(message);
 
