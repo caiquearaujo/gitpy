@@ -5,99 +5,88 @@ from slugify import slugify;
 from .terminal import Terminal;
 
 class GitOp:
-	def __init__(self):
-		self.git = GitOp.status('.');
+	def __init__(self, path):
+		self.repo = GitOp.status(path);
+		self.path = path;
+
+		if (self.repo != False):
+			self.git = self.repo.git;
 
 	def init(self):
-		if (self.exists() != False):
-			Terminal.err('Comando Inválido', 'O repositório já foi iniciado na pasta atual...');
+		self.repo = git.Repo.init(self.path);
+		self.git  = self.repo.git;
 
-		pname = slugify(Terminal.askInput('[*] Qual o nome do projeto?', 25));
+	# def commit (self):
+	# 	branch = self.currentBranch();
+	# 	Terminal.shouldContinue();
 
-		if ( pathlib.Path(pathlib.PurePath('.', 'README.md')).is_file() != True ) :
-			os.system('echo "# {name}" >> README.md'.format(name = pname));
+	# 	type = Terminal.commitTypes();
+	# 	print();
 
-		self.git = git.Repo.init('.').git;
-		self.__commit(':tada: initial(repo): First commit');
-		self.__renameTo('main');
+	# 	scope = Terminal.askInput('[*] Dê um escopo para o seu commit [<=15]', 15);
+	# 	title = Terminal.askInput('[*] Dê um título para o seu commit [<=50]', 50);
+	# 	body = Terminal.askInput('Descreva brevemente o seu commit [<=75]', 75, False);
 
-		add_origin = Terminal.askYN('[*] Adicionar origem remota?');
-		origin_name = None;
-		origin_url = None;
+	# 	message = "{em} {tp}({sc}): {tt}\n\n{b}".format(em=type['emoji'],tp=type['type'],sc=scope,tt=title,b=body);
 
-		if (add_origin == True):
-			origin_name = Terminal.askInput('[*] Informe o nome da origem:', default = 'origin');
-			origin_url = Terminal.askInput('[*] Qual a URL de origem do projeto?');
+	# 	Terminal.printSuccess('Pré-visualização do commit:\n');
+	# 	print(message+"\n");
 
-			self.__remote(origin_url, origin_name);
-			self.__pushTo('main');
+	# 	Terminal.shouldContinue();
 
-		self.__create('dev', origin_name, add_origin);
-		Terminal.success('Repositório inicializado com sucesso...');
+	# 	self.commit(message);
 
-	def commit (self):
-		branch = self.__currentBranch();
-		Terminal.shouldContinue();
+	# 	_continue = Terminal.askYN('Deseja exportar o commit para branches remotos [push]?');
 
-		type = Terminal.commitTypes();
-		print();
+	# 	if ( _continue != False ):
+	# 		self.pushTo(branch);
+	# 		Terminal.success('Commit finalizado e sincronizado com sucesso...');
 
-		scope = Terminal.askInput('[*] Dê um escopo para o seu commit [<=15]', 15);
-		title = Terminal.askInput('[*] Dê um título para o seu commit [<=50]', 50);
-		body = Terminal.askInput('Descreva brevemente o seu commit [<=75]', 75, False);
-
-		message = "{em} {tp}({sc}): {tt}\n\n{b}".format(em=type['emoji'],tp=type['type'],sc=scope,tt=title,b=body);
-
-		Terminal.printSuccess('Pré-visualização do commit:\n');
-		print(message+"\n");
-
-		Terminal.shouldContinue();
-
-		self.__commit(message);
-
-		_continue = Terminal.askYN('Deseja exportar o commit para branches remotos [push]?');
-
-		if ( _continue != False ):
-			self.__pushTo(branch);
-			Terminal.success('Commit finalizado e sincronizado com sucesso...');
-
-		Terminal.success('Commit finalizado com sucesso...');
+	# 	Terminal.success('Commit finalizado com sucesso...');
 
 	def exists (self):
 		return self.git != False;
 
-	def __remote(self, url: str, name: str = 'origin'):
+	def remoteExists (self, name: str):
+		if self.git == False:
+			return False;
+
+		return name in [remote.name for remote in self.repo.remotes]
+
+	def workingDir (self):
+		return self.path;
+
+	def remote(self, url: str, name: str = 'origin'):
 		self.git.remote('add', name, url);
 
-	def __create(self, branch: str, origin: str = 'origin', track: bool = True):
+	def create(self, branch: str, origin: str = 'origin', track: bool = True):
 		if ( track ):
 			self.git.checkout('-b', branch);
 			self.git.push('-u', origin, branch);
 		else:
 			self.git.checkout('-b', branch);
 
-	def __pushTo(self, branch: str, origin: str = 'origin', upstream: bool = True):
+	def pushTo(self, branch: str, origin: str = 'origin', upstream: bool = True):
 		if ( upstream ):
 			self.git.push('-u', origin, branch);
 		else:
 			self.git.push(origin, branch);
 
-	def __renameTo(self, new: str):
+	def renameTo(self, new: str):
 		self.git.branch('-M', new);
 
-	def __commit(self, message: str):
+	def commit(self, message: str):
 		self.git.add('--all');
 		self.git.commit('-m', message);
 
-	def __currentBranch(self):
-		print("Você está atualmente no branch:");
+	def currentBranch(self):
 		branch = self.git.branch('--show-current');
-		Terminal.printSuccess(branch);
+		Terminal.warning("Working branch: " + branch);
 		return branch;
 
 	@staticmethod
 	def status (target):
 		try:
-			return git.Repo(target).git;
+			return git.Repo(target);
 		except git.InvalidGitRepositoryError:
 			return False;
