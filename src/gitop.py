@@ -16,34 +16,6 @@ class GitOp:
 		self.repo = git.Repo.init(self.path);
 		self.git  = self.repo.git;
 
-	# def commit (self):
-	# 	branch = self.currentBranch();
-	# 	Terminal.shouldContinue();
-
-	# 	type = Terminal.commitTypes();
-	# 	print();
-
-	# 	scope = Terminal.askInput('[*] Dê um escopo para o seu commit [<=15]', 15);
-	# 	title = Terminal.askInput('[*] Dê um título para o seu commit [<=50]', 50);
-	# 	body = Terminal.askInput('Descreva brevemente o seu commit [<=75]', 75, False);
-
-	# 	message = "{em} {tp}({sc}): {tt}\n\n{b}".format(em=type['emoji'],tp=type['type'],sc=scope,tt=title,b=body);
-
-	# 	Terminal.printSuccess('Pré-visualização do commit:\n');
-	# 	print(message+"\n");
-
-	# 	Terminal.shouldContinue();
-
-	# 	self.commit(message);
-
-	# 	_continue = Terminal.askYN('Deseja exportar o commit para branches remotos [push]?');
-
-	# 	if ( _continue != False ):
-	# 		self.pushTo(branch);
-	# 		Terminal.success('Commit finalizado e sincronizado com sucesso...');
-
-	# 	Terminal.success('Commit finalizado com sucesso...');
-
 	def exists (self):
 		return self.git != False;
 
@@ -79,10 +51,23 @@ class GitOp:
 		self.git.add('--all');
 		self.git.commit('-m', message);
 
+	def checkout(self, branch: str):
+		self.git.checkout(branch);
+
+	def merge(self, branch: str, message: str):
+		self.git.merge(branch, '-m', message);
+
+	def delete(self, branch: str, remote: str = 'origin'):
+		self.git.branch('-d', branch);
+		self.git.push(remote, '--delete', branch);
+
 	def currentBranch(self):
 		branch = self.git.branch('--show-current');
 		Terminal.warning("Working branch: " + branch);
 		return branch;
+
+	def hasUncommitedChanges(self):
+		return self.repo.is_dirty(untracked_files=True);
 
 	@staticmethod
 	def status (target):

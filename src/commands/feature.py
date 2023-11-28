@@ -1,3 +1,4 @@
+import argparse
 import git
 from slugify import slugify;
 
@@ -12,6 +13,21 @@ class FeatureCommand:
 		if (self.git.exists() == False):
 			terminal.Terminal.err('Invalid command', 'Cannot find any repository on current working directory...');
 
+		option = terminal.Terminal.askChoices({
+			1: { 'label': 'Create a new feature' },
+			2: { 'label': 'Finish a feature' },
+			3: { 'label': 'Abort' },
+		}, 3)
+
+		switcher = {
+			1: lambda : self.create(),
+			2: lambda : self.finish(),
+		}
+
+		func = switcher.get(option, False);
+		func();
+
+	def create(self):
 		branch = self.git.currentBranch();
 
 		if (branch != 'dev'):
@@ -34,3 +50,25 @@ class FeatureCommand:
 
 		self.git.create('feature/' + feat_name, origin_name, track_branch);
 		terminal.Terminal.success('New feature branch created successfully...');
+
+	def finish(self):
+		branch = self.git.currentBranch();
+
+		if ('feature/' not in branch):
+			terminal.Terminal.err('Invalid branch', 'You must be on a feature branch to finish it...');
+
+		untracked = self.git.hasUncommitedChanges();
+
+		if (untracked):
+			terminal.Terminal.warning('You have uncommited changes on this branch...');
+			terminal.Terminal.err('Cannot finish', 'You must commit your changes before finish this feature...');
+
+		self.git.checkout('dev');
+		self.git.merge('Merge branch "' + branch + '" into "dev"');
+
+		keep_branch = terminal.Terminal.askYN('[*] Do you want to keep the feature branch?');
+
+		if (keep_branch == False):
+			self.git.delete(branch);
+
+		terminal.Terminal.success('Feature branch merged successfully...');

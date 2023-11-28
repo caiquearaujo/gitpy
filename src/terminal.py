@@ -2,6 +2,27 @@ import colorama;
 import sys;
 
 class Terminal:
+
+	@staticmethod
+	def askChoices (choices, abort_option = -1):
+		option = 0;
+		print();
+
+		while (option <= 0):
+			for key in choices.keys():
+				print(colorama.Fore.YELLOW, '[', key, ']', colorama.Fore.RESET ,'\t', choices[key]['label']);
+
+			try:
+				print();
+				option = int(input('[*] Set an option' + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET));
+			except:
+				option = 0;
+
+		if ( option == abort_option ):
+			Terminal.success('Operation aborted successfully.');
+
+		return option;
+
 	@staticmethod
 	def commitTypes ():
 		commit_types = {

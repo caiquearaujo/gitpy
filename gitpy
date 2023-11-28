@@ -9,6 +9,8 @@ from src.terminal import Terminal;
 
 from src.commands.init import InitCommand;
 from src.commands.feature import FeatureCommand;
+from src.commands.hotfix import HotfixCommand;
+from src.commands.release import ReleaseCommand;
 from src.commands.commit import CommitCommand;
 from src.commands.test import TestCommand;
 
@@ -40,6 +42,8 @@ def main () :
 	switcher = {
 		'init': lambda : InitCommand(git).run(),
 		'feature': lambda : FeatureCommand(git).run(),
+		'hotfix': lambda : HotfixCommand(git).run(),
+		'release': lambda : ReleaseCommand(git).run(),
 		'commit': lambda : CommitCommand(git).run(),
 		'test': lambda : TestCommand(git).run(),
 	}
