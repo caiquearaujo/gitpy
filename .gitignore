@@ -1,3 +1,4 @@
 # local files
 *.code-workspace
 *._*
+__pycache__

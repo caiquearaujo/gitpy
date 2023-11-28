@@ -2,6 +2,27 @@ import colorama;
 import sys;
 
 class Terminal:
+
+	@staticmethod
+	def askChoices (choices, abort_option = -1):
+		option = 0;
+		print();
+
+		while (option <= 0):
+			for key in choices.keys():
+				print(colorama.Fore.YELLOW, '[', key, ']', colorama.Fore.RESET ,'\t', choices[key]['label']);
+
+			try:
+				print();
+				option = int(input('[*] Set an option' + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET));
+			except:
+				option = 0;
+
+		if ( option == abort_option ):
+			Terminal.success('Operation aborted successfully.');
+
+		return option;
+
 	@staticmethod
 	def commitTypes ():
 		commit_types = {
@@ -26,7 +47,8 @@ class Terminal:
 			19: { 'emoji': ':ambulance:', 'type': 'critical', 'txt': "Critical changes" },
 			20: { 'emoji': ':ok_hand:', 'type': 'review', 'txt': "Code review" },
 			21: { 'emoji': ':recycle:', 'type': 'review', 'txt': "Content review" },
-			22: { 'emoji': '', 'type': 'abort', 'txt': "Abort commit" },
+			22: { 'emoji': ':bricks:', 'type': 'other', 'txt': "Other" },
+			23: { 'emoji': '', 'type': 'abort', 'txt': "Abort commit" },
 		};
 
 		type = 0;
@@ -39,25 +61,27 @@ class Terminal:
 
 			try:
 				print();
-				type = int(input('[*] Defina o tipo de commit' + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET));
+				type = int(input('[*] Set the commit type' + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET));
 			except:
 				type = 0;
 
-		if ( type == 22 ):
-			Terminal.success('Commit abortado com sucesso.');
+		if ( type == 23 ):
+			Terminal.success('Commit aborted successfully.');
 
 		return commit_types[type];
 
 	@staticmethod
-	def askInput (question: str, max: int = -1, required: bool = True, default: str = None):
+	def askInput (question: str, max: int = -1, required: bool = True, default: str = None, jump: bool = False):
 		while True:
-			message = question;
+			message = question + colorama.Fore.GREEN + ' > ' + colorama.Fore.RESET;
 
 			if ( default ):
 				message += colorama.Fore.YELLOW + ' [' + default + ']' + colorama.Fore.RESET;
 
-			print(message);
-			response = input();
+			if (jump):
+				message += "\n";
+
+			response = input(message);
 
 			if ( max < 0 ):
 				max = len(response);
@@ -69,10 +93,10 @@ class Terminal:
 				if ( len(response) != 0 and len(response) <= max ):
 					return response;
 
-				Terminal.printErr('Valor inesperado', 'É necessário preencher uma resposta...');
+				Terminal.printErr('Unexpected value', 'You need to set an answer...');
 
 				if (len(response) > max):
-					Terminal.printErr('Valor inesperado', 'Limite máximo de {m} caracter(es) atingido...\n'.format(m=max));
+					Terminal.printErr('Unexpected value', 'Maximum of {m} character(s) limit reached...\n'.format(m=max));
 			else:
 				if ( default != None ):
 					return default;
@@ -101,29 +125,35 @@ class Terminal:
 			elif choice in valid:
 				return valid[choice];
 			else:
-				Terminal.printErr('Valor inesperado', 'Por favor, responda com: `y`, `n`, `yes` ou `no`.');
+				Terminal.printErr('Unexpected value', 'Please, ask with: `y`, `n`, `yes` ou `no`.');
 
 	@staticmethod
 	def shouldContinue():
-		_continue = Terminal.askYN('Deseja prosseguir?');
+		_continue = Terminal.askYN('Do you want to continue?');
 
 		if ( _continue == False ):
-			Terminal.success('Operação abortada com sucesso...');
+			Terminal.success('Operation aborted successfully...');
 
 	@staticmethod
-	def err (err = 'Erro', message = 'Algo deu errado'):
-		""" Exibe uma mensagem de error e encerra o programa. """
+	def err (err = 'Erro', message = 'Something went wrong'):
 		Terminal.printErr(err, message);
 		sys.exit(2);
 
 	@staticmethod
-	def success (message = 'Não há mais nada a ser feito...'):
-		""" Exibe uma mensagem de sucesso e encerra o programa. """
-		Terminal.printSuccess("\n\n" + message);
+	def success (message = 'Everything is fine...'):
+		Terminal.printSuccess(message);
 		sys.exit();
 
 	@staticmethod
-	def printErr (err = 'Erro', message = 'Algo deu errado'):
+	def warning (message = 'Everything is fine...'):
+		Terminal.printWarning(message);
+
+	@staticmethod
+	def spacing ():
+		print("\n");
+
+	@staticmethod
+	def printErr (err = 'Erro', message = 'Something went wrong'):
 		print(
 			colorama.Back.RED
 			+ err + ' >'
@@ -134,5 +164,9 @@ class Terminal:
 		);
 
 	@staticmethod
-	def printSuccess (message = 'Algo deu errado'):
+	def printSuccess (message = 'Something went wrong'):
 		print(colorama.Fore.GREEN + message + colorama.Fore.RESET);
+
+	@staticmethod
+	def printWarning (message = 'Something went wrong'):
+		print(colorama.Fore.YELLOW + message + colorama.Fore.RESET);
