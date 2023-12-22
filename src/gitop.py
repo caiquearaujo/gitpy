@@ -17,7 +17,7 @@ class GitOp:
 		self.git  = self.repo.git;
 
 	def exists (self):
-		return self.git != False;
+		return self.repo != False;
 
 	def remoteExists (self, name: str):
 		if self.git == False:
@@ -72,6 +72,6 @@ class GitOp:
 	@staticmethod
 	def status (target):
 		try:
-			return git.Repo(target);
+			return git.Repo(target, search_parent_directories=True);
 		except git.InvalidGitRepositoryError:
 			return False;

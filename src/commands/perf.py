@@ -1,9 +1,10 @@
+from datetime import datetime;
 from slugify import slugify;
 
 from .. import gitop
 from .. import terminal
 
-class CreateFeatureCommand:
+class CreatePerfCommand:
 	def __init__(self, gitop: gitop.GitOp):
 		self.git = gitop;
 
@@ -11,10 +12,11 @@ class CreateFeatureCommand:
 		branch = self.git.currentBranch();
 
 		if (branch != 'dev'):
-			terminal.Terminal.err('Invalid branch', 'You must be on "dev" branch to create a new feature...');
+			terminal.Terminal.err('Invalid branch', 'You must be on "dev" branch to create a new perf...');
 
-		feat_name = slugify(terminal.Terminal.askInput('[*] What is the feature name?'));
-		terminal.Terminal.warning('Your feature branch will be named as: feature/' + feat_name);
+		branch_name = datetime.now().strftime('%Y%m%d%H%M%S');
+
+		terminal.Terminal.warning('Your perf branch will be named as: perf/' + branch_name);
 		terminal.Terminal.shouldContinue();
 
 		track_branch = terminal.Terminal.askYN('[*] Do you want to track this branch on remote?');
@@ -28,31 +30,34 @@ class CreateFeatureCommand:
 				origin_name = None;
 				track_branch = terminal.Terminal.askYN('[*] Do you want to try a new remote name?');
 
-		self.git.create('feature/' + feat_name, origin_name, track_branch);
-		terminal.Terminal.success('New feature branch created successfully...');
+		self.git.create('perf/' + branch_name, origin_name, track_branch);
+		terminal.Terminal.success('New perf branch created successfully...');
 
-class FinishFeatureCommand:
+class FinishPerfCommand:
 	def __init__(self, gitop: gitop.GitOp):
 		self.git = gitop;
 
 	def run(self):
 		branch = self.git.currentBranch();
 
-		if ('feature/' not in branch):
-			terminal.Terminal.err('Invalid branch', 'You must be on a feature branch to finish it...');
+		if ('perf/' not in branch):
+			terminal.Terminal.err('Invalid branch', 'You must be on a perf branch to finish it...');
 
 		untracked = self.git.hasUncommitedChanges();
 
 		if (untracked):
 			terminal.Terminal.warning('You have uncommited changes on this branch...');
-			terminal.Terminal.err('Cannot finish', 'You must commit your changes before finish this feature...');
+			terminal.Terminal.err('Cannot finish', 'You must commit your changes before finish this perf...');
+
+		self.git.checkout('main');
+		self.git.merge('Merge branch "' + branch + '" into "main"');
 
 		self.git.checkout('dev');
 		self.git.merge('Merge branch "' + branch + '" into "dev"');
 
-		keep_branch = terminal.Terminal.askYN('[*] Do you want to keep the feature branch?');
+		keep_branch = terminal.Terminal.askYN('[*] Do you want to keep the perf branch?');
 
 		if (keep_branch == False):
 			self.git.delete(branch);
 
-		terminal.Terminal.success('Feature branch merged successfully...');
+		terminal.Terminal.success('Perf branch merged successfully...');

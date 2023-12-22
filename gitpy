@@ -5,12 +5,13 @@ import os
 import pathlib
 
 from src import gitop;
+from src import args;
 from src.terminal import Terminal;
 
 from src.commands.init import InitCommand;
-from src.commands.feature import FeatureCommand;
-from src.commands.hotfix import HotfixCommand;
-from src.commands.release import ReleaseCommand;
+from src.commands.feature import CreateFeatureCommand;
+from src.commands.hotfix import CreateHotfixCommand;
+from src.commands.perf import CreatePerfCommand;
 from src.commands.commit import CommitCommand;
 from src.commands.test import TestCommand;
 
@@ -25,33 +26,56 @@ class CheckPathAction(argparse.Action):
 
 		setattr(namespace, self.dest, path)
 
-def main () :
+def parse_args():
 	parser = argparse.ArgumentParser(
 		prog='GitPy',
 		description='GitPy: A simple Git repository manager based on GitFlow requirements.',
 		epilog='See below all commands ready to be used.'
 	);
 
-	parser.add_argument('command', help='Command to be executed.', choices=['init', 'commit', 'feature', 'release', 'hotfix', 'merge', 'migrate', 'test']);
 	parser.add_argument('-p', '--path', help='Working directory for git.', type=pathlib.Path, default=os.getcwd(), action=CheckPathAction);
-	args = parser.parse_args();
+	subparsers = parser.add_subparsers(dest='command', help='Command to be executed.');
+
+	args.init_args(subparsers);
+	args.commit_args(subparsers);
+	args.feature_args(subparsers);
+	args.hotfix_args(subparsers);
+	args.perf_args(subparsers);
+	args.ping_args(subparsers);
+
+	return parser.parse_args();
+
+def main () :
+	args = parse_args();
 
 	Terminal.warning("Working directory: " + str(args.path));
 	git = gitop.GitOp(args.path);
 
 	switcher = {
 		'init': lambda : InitCommand(git).run(),
-		'feature': lambda : FeatureCommand(git).run(),
-		'hotfix': lambda : HotfixCommand(git).run(),
-		'release': lambda : ReleaseCommand(git).run(),
 		'commit': lambda : CommitCommand(git).run(),
-		'test': lambda : TestCommand(git).run(),
+		'ping': lambda : TestCommand(git).run(),
+		'feature': {
+			'create': lambda : CreateFeatureCommand(git).run(),
+		},
+		'hotfix': {
+			'create': lambda : CreateHotfixCommand(git).run(),
+		},
+		'perf': {
+			'create': lambda : CreatePerfCommand(git).run(),
+		},
 	}
 
 	func = switcher.get(args.command, False);
 
 	if ( func == False ):
-		Terminal.err('Unexpected command', 'The command {command} was not found.'.format(command=command));
+		Terminal.err('Unexpected command', 'The command {command} was not found.'.format(command=args.command));
+
+	if ( type(func) == dict ):
+		func = func.get(args.action, False);
+
+		if ( func == False ):
+			Terminal.err('Unexpected action', 'The action {action} was not found for {command}.'.format(action=args.action, command=args.command));
 
 	func();
 	Terminal.success();
