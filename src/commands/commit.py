@@ -24,6 +24,7 @@ class CommitCommand:
 		message = "{em} {tp}({sc}): {tt}\n\n{b}".format(em=type['emoji'],tp=type['type'],sc=scope,tt=title,b=body);
 
 		terminal.Terminal.spacing();
+		terminal.Terminal.warning("You are publishing a {txt} {preview}".format(txt=type['txt'], preview=type['preview']));
 		terminal.Terminal.printSuccess('Commit preview:\n');
 		print(message+"\n");
 
