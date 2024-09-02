@@ -26,30 +26,30 @@ class Terminal:
 	@staticmethod
 	def commitTypes ():
 		commit_types = {
-			1: { 'emoji': ':sparkles:', 'type': 'feat', 'txt': "Features" },
-			2: { 'emoji': ':bug:', 'type': 'fix', 'txt': "Bug Fixes" },
-			3: { 'emoji': ':books:', 'type': 'docs', 'txt': "Documentation" },
-			4: { 'emoji': ':gem:', 'type': 'style', 'txt': "Styles" },
-			5: { 'emoji': ':package:', 'type': 'refactor', 'txt': "Code Refactoring" },
-			6: { 'emoji': ':racehorse:', 'type': 'perf', 'txt': "Performance Improvements" },
-			7: { 'emoji': ':rotating_light:', 'type': 'test', 'txt': "Tests" },
-			8: { 'emoji': ':wrench:', 'type': 'build', 'txt': "Builds" },
-			9: { 'emoji': ':gear:', 'type': 'ci', 'txt': "Continuous Integrations" },
-			10: { 'emoji': ':recycle:', 'type': 'chore', 'txt': "Chores" },
-			11: { 'emoji': ':rewind:', 'type': 'revert', 'txt': "Reverts" },
-			12: { 'emoji': ':arrow_double_up:', 'type': 'dependencies', 'txt': "Dependencies" },
-			13: { 'emoji': ':arrow_double_up:', 'type': 'peerDependencies', 'txt': "Peer dependencies" },
-			14: { 'emoji': ':arrow_double_up:', 'type': 'devDependencies', 'txt': "Dev dependencies" },
-			15: { 'emoji': ':card_index:', 'type': 'metadata', 'txt': "Metadata" },
-			16: { 'emoji': ':bookmark:', 'type': 'version', 'txt': "Version tag" },
-			17: { 'emoji': ':lock:', 'type': 'security', 'txt': "Security" },
-			18: { 'emoji': ':pencil:', 'type': 'text', 'txt': "Text" },
-			19: { 'emoji': ':ambulance:', 'type': 'critical', 'txt': "Critical changes" },
-			20: { 'emoji': ':ok_hand:', 'type': 'review', 'txt': "Code review" },
-			21: { 'emoji': ':recycle:', 'type': 'review', 'txt': "Content review" },
-			22: { 'emoji': ':bricks:', 'type': 'other', 'txt': "Other" },
-			23: { 'emoji': '', 'type': 'abort', 'txt': "Abort commit" },
-		};
+			1: { 'emoji': ':sparkles:', 'preview': '✨', 'type': 'feat', 'txt': "Features" },
+			2: { 'emoji': ':bug:', 'preview': '🐛', 'type': 'fix', 'txt': "Bug Fixes" },
+			3: { 'emoji': ':books:', 'preview': '📚', 'type': 'docs', 'txt': "Documentation" },
+			4: { 'emoji': ':gem:', 'preview': '💎', 'type': 'style', 'txt': "Styles" },
+			5: { 'emoji': ':package:', 'preview': '📦', 'type': 'refactor', 'txt': "Code Refactoring" },
+			6: { 'emoji': ':racehorse:', 'preview': '🐎', 'type': 'perf', 'txt': "Performance Improvements" },
+			7: { 'emoji': ':rotating_light:', 'preview': '🚨', 'type': 'test', 'txt': "Tests" },
+			8: { 'emoji': ':wrench:', 'preview': '🔧', 'type': 'build', 'txt': "Builds" },
+			9: { 'emoji': ':gear:', 'preview': '⚙️', 'type': 'ci', 'txt': "Continuous Integrations" },
+			10: { 'emoji': ':recycle:', 'preview': '♻️', 'type': 'chore', 'txt': "Chores" },
+			11: { 'emoji': ':rewind:', 'preview': '⏪', 'type': 'revert', 'txt': "Reverts" },
+			12: { 'emoji': ':arrow_double_up:', 'preview': '⏫', 'type': 'dependencies', 'txt': "Dependencies" },
+			13: { 'emoji': ':arrow_double_up:', 'preview': '⏫', 'type': 'peerDependencies', 'txt': "Peer dependencies" },
+			14: { 'emoji': ':arrow_double_up:', 'preview': '⏫', 'type': 'devDependencies', 'txt': "Dev dependencies" },
+			15: { 'emoji': ':card_index:', 'preview': '📇', 'type': 'metadata', 'txt': "Metadata" },
+			16: { 'emoji': ':bookmark:', 'preview': '🔖', 'type': 'version', 'txt': "Version tag" },
+			17: { 'emoji': ':lock:', 'preview': '🔒', 'type': 'security', 'txt': "Security" },
+			18: { 'emoji': ':pencil:', 'preview': '✏️', 'type': 'text', 'txt': "Text" },
+			19: { 'emoji': ':ambulance:', 'preview': '🚑', 'type': 'critical', 'txt': "Critical changes" },
+			20: { 'emoji': ':ok_hand:', 'preview': '👌', 'type': 'review', 'txt': "Code review" },
+			21: { 'emoji': ':recycle:', 'preview': '♻️', 'type': 'review', 'txt': "Content review" },
+			22: { 'emoji': ':bricks:', 'preview': '🧱', 'type': 'other', 'txt': "Other" },
+			23: { 'emoji': '', 'preview': '', 'type': 'abort', 'txt': "Abort commit" },
+		}
 
 		type = 0;
 
@@ -57,7 +57,7 @@ class Terminal:
 
 		while (type <= 0):
 			for key in commit_types.keys():
-				print(colorama.Fore.YELLOW, '[', key, ']', colorama.Fore.RESET ,'\t', commit_types[key]['txt']);
+				print(colorama.Fore.YELLOW, '[', key, ']', colorama.Fore.RESET ,'\t', commit_types[key]['preview'], commit_types[key]['txt']);
 
 			try:
 				print();

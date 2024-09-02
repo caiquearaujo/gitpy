@@ -17,7 +17,7 @@ class GitOp:
 		self.git  = self.repo.git;
 
 	def exists (self):
-		return self.git != False;
+		return self.repo != False;
 
 	def remoteExists (self, name: str):
 		if self.git == False:
@@ -47,9 +47,13 @@ class GitOp:
 	def renameTo(self, new: str):
 		self.git.branch('-M', new);
 
-	def commit(self, message: str):
+	def commit(self, message: str, date: str = 'now'):
 		self.git.add('--all');
-		self.git.commit('-m', message);
+
+		if ( date == 'now' ):
+			self.git.commit('-m', message);
+		else:
+			self.git.commit('--date', date, '-m', message);
 
 	def checkout(self, branch: str):
 		self.git.checkout(branch);
@@ -72,6 +76,6 @@ class GitOp:
 	@staticmethod
 	def status (target):
 		try:
-			return git.Repo(target);
+			return git.Repo(target, search_parent_directories=True);
 		except git.InvalidGitRepositoryError:
 			return False;
