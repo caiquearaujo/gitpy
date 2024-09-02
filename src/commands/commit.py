@@ -5,8 +5,9 @@ from .. import gitop
 from .. import terminal
 
 class CommitCommand:
-	def __init__(self, gitop: gitop.GitOp):
+	def __init__(self, gitop: gitop.GitOp, date: str = 'now'):
 		self.git = gitop;
+		self.date = date;
 
 	def run(self):
 		if (self.git.exists() == False):
@@ -25,11 +26,15 @@ class CommitCommand:
 
 		terminal.Terminal.spacing();
 		terminal.Terminal.warning("You are publishing a {txt} {preview}".format(txt=type['txt'], preview=type['preview']));
+
+		if (self.date != 'now'):
+			terminal.Terminal.warning("This commit will be dated as: " + self.date);
+
 		terminal.Terminal.printSuccess('Commit preview:\n');
 		print(message+"\n");
 
 		terminal.Terminal.shouldContinue();
-		self.git.commit(message);
+		self.git.commit(message, self.date);
 
 		_continue = terminal.Terminal.askYN('Do you want to push this commit to remote?');
 

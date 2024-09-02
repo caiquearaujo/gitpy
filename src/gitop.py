@@ -47,9 +47,13 @@ class GitOp:
 	def renameTo(self, new: str):
 		self.git.branch('-M', new);
 
-	def commit(self, message: str):
+	def commit(self, message: str, date: str = 'now'):
 		self.git.add('--all');
-		self.git.commit('-m', message);
+
+		if ( date == 'now' ):
+			self.git.commit('-m', message);
+		else:
+			self.git.commit('--date', date, '-m', message);
 
 	def checkout(self, branch: str):
 		self.git.checkout(branch);

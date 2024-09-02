@@ -34,6 +34,7 @@ def parse_args():
 	);
 
 	parser.add_argument('-p', '--path', help='Working directory for git.', type=pathlib.Path, default=os.getcwd(), action=CheckPathAction);
+	parser.add_argument('-d', '--date', help='Date to be used in the commit.', type=str, default='now');
 	subparsers = parser.add_subparsers(dest='command', help='Command to be executed.');
 
 	args.init_args(subparsers);
@@ -48,12 +49,16 @@ def parse_args():
 def main () :
 	args = parse_args();
 
+	if ( args.date != 'now' ):
+		os.environ['GIT_AUTHOR_DATE'] = args.date;
+		os.environ['GIT_COMMITTER_DATE'] = args.date;
+
 	Terminal.warning("Working directory: " + str(args.path));
 	git = gitop.GitOp(args.path);
 
 	switcher = {
 		'init': lambda : InitCommand(git).run(),
-		'commit': lambda : CommitCommand(git).run(),
+		'commit': lambda : CommitCommand(git, args.date).run(),
 		'ping': lambda : TestCommand(git).run(),
 		'feature': {
 			'create': lambda : CreateFeatureCommand(git).run(),
